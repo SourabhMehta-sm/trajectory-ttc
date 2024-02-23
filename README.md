@@ -48,6 +48,3 @@ Socio-Temporal Multi-Agent Forecasting" [AgentFormer](https://www.ye-yuan.com/ag
     year={2021}
 }
 ```
-
-# License
-Please see the [license](LICENSE) for further details.
