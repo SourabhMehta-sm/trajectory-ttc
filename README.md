@@ -36,8 +36,7 @@ python test.py --cfg nuscenes_5sample_agentformer --gpu 0
 - **Output Trajectory Prediction**: The decoder outputs predicted future trajectories based on the learned representations of past trajectories and inter-agent relations. The model can generate multiple plausible future trajectories for each agent, considering the inherent uncertainty in their movements.
 - **Conditional Variational Autoencoder (CVAE)**: To handle the multimodal nature of future trajectories (i.e., there can be multiple plausible futures), the arhitecture incorporates a CVAE. This allows the model to sample different possible future states, providing a distribution of future trajectories rather than a single deterministic output.
 
-<img src="image1_url" alt="alt text" width="200"/> <img src="https://drive.google.com/file/d/1PWFr4ESGqVZh4OGUrMzBMUWU9SEdzte4/view?usp=sharing" alt="alt text" width="200"/>
-
+![Model Architecture](trajectory-ttc-model-worflow.png)
 
 # Citation
 > Ye Yuan, 2021, "AgentFormer: Agent-Aware Transformers for
