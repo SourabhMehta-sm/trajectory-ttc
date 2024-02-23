@@ -10,6 +10,13 @@
     ```
     pip install -r requirements.txt
     ```
+### Datasets 
+
+To pre-process the data use the code.
+
+```
+python data/process_nuscenes.py --data_root <PATH_TO_NUSCENES>
+```
 
 ### Result
 Run the following command to test pretrained models for the nuScenes dataset:
