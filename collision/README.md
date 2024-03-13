@@ -1,28 +1,40 @@
-# Probability of Collision Calculation
+# Collision Probability Calculation
 
-## Overview
+This guide details the process for calculating the probability of collision between vehicles, taking into account both their spatial and temporal proximities. The method integrates the concept of Time to Collision (TTC) with the physical distance between vehicles to assess potential risks more comprehensively.
 
-This document provides the formulas used for calculating the probability of a collision within a simulation. It covers calculations for a single frame as well as for an entire scene.
+## Time to Collision (TTC)
 
-## Single Frame Collision Probability
+TTC is a crucial metric in evaluating the risk of collision between two moving vehicles. It can be calculated using the formula:
 
-The probability of a collision occurring in a single frame is calculated as follows:
+TTC = D / V_rel
 
-- **Formula**: `P(collision) = C(n, 2)`
-- **Where**:
-  - `P(collision)` is the probability of a collision occurring in a frame.
-  - `C` is the number of unique agent pairs where the distance between agents is less than the collision threshold.
-  - `n` is the total number of agents in the frame.
-  - `C(n, 2)` is the binomial coefficient, representing the total number of unique agent pairs possible in the frame. This is calculated as `n(n - 1) / 2`, which gives the total combinations of pairs.
 
-## Scene Collision Probability
+where:
 
-To calculate the probability of collision across an entire scene, we use the average probability across all frames:
+- `TTC` is the Time to Collision.
+- `D` represents the distance between the two vehicles.
+- `V_rel` is the relative velocity between the vehicles, calculated as `V_lead - V_ego`. Here, `V_lead` is the velocity of the leading vehicle, and `V_ego` is the velocity of the trailing (or ego) vehicle.
 
-- **Formula**: `P_scene(collision) = 1/T * Σ(from t=1 to T) P_t(collision)`
-- **Where**:
-  - `P_scene(collision)` is the average probability of a collision occurring in the entire scene.
-  - `T` is the total number of frames in the scene.
-  - `P_t(collision)` is the probability of a collision occurring in frame `t`.
+## Collision Probability Calculation
 
-This methodology allows for a comprehensive understanding of collision dynamics within the simulated environment, providing crucial insights for optimization and safety assessments.
+To determine the collision probability for each pair of vehicles, we assess whether the TTC falls below a specific threshold, indicating a high risk of collision. The probability of collision across a scene or dataset is given by:
+
+P_collision = C / T
+
+where:
+
+- `P_collision` is the probability of collision.
+- `C` is the count of vehicle pairs with TTC below a certain threshold.
+- `T` is the total number of unique vehicle pairs in the scene or dataset.
+
+## Integrating Distance into the Probability
+
+To incorporate spatial proximity into the collision risk assessment, the calculation can be adjusted to consider vehicle pairs that are both likely to collide based on TTC and are within a specified distance threshold:
+
+C' = Count of pairs where TTC < TTC_threshold and D < D_threshold
+
+The modified collision probability then becomes:
+
+P_collision' = C' / T
+
+This enhanced formula accounts for both temporal and spatial factors, offering a more comprehensive evaluation of collision risks.
