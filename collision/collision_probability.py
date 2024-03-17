@@ -1,5 +1,6 @@
 import os
 import numpy as np
+import pandas as pd
 
 def load_trajectory_data(base_folder_path):
     # Dictionary to hold trajectory data, keyed by scene and frame
@@ -110,10 +111,66 @@ def calculate_collision_probabilities_with_nonlinear(trajectory_data, vehicle_le
 
     return collision_probabilities
 
+#Here is the final frame wise probability
+def calculate_frame_collision_probabilities_with_nonlinear(trajectory_data, vehicle_length=4.0, vehicle_width=1.8):
+    # Define decay parameters for the exponential function
+    lambda_x = 0.01  # Decay parameter for X distance
+    lambda_y = 0.1   # Decay parameter for Y distance
+
+    # Initialize the dictionary to store collision probabilities
+    collision_probabilities = {}
+
+    # Iterate through each scene and its frames
+    for scene, frames_data in trajectory_data.items():
+        # Initialize a sub-dictionary for each scene
+        collision_probabilities[scene] = {}
+
+        # Iterate through each frame and its positions
+        for frame, positions in frames_data.items():
+            sorted_indices = np.argsort(positions[:, 0])
+            sorted_positions = positions[sorted_indices]
+
+            # Initialize a list to store probabilities for each vehicle pair in the frame
+            frame_collision_pairs = []
+
+            # Calculate collision probabilities for each pair of adjacent vehicles
+            for i in range(len(sorted_positions) - 1):
+                ego_id = sorted_indices[i]
+                target_id = sorted_indices[i + 1]
+
+                # Calculate adjusted distances considering vehicle dimensions
+                x_distance = max(sorted_positions[i + 1][0] - sorted_positions[i][0] - vehicle_length, 0)
+                y_distance = max(abs(sorted_positions[i + 1][1] - sorted_positions[i][1]) - vehicle_width, 0)
+
+                # Calculate exponential decay probabilities for X and Y distances
+                prob_x = 1 - np.exp(-lambda_x * x_distance)
+                prob_y = 1 - np.exp(-lambda_y * y_distance)
+                combined_prob = prob_x * prob_y
+
+                # Append the vehicle pair and its combined collision probability
+                frame_collision_pairs.append(((ego_id, target_id), combined_prob))
+
+            # Store the collision pairs and probabilities for the current frame
+            collision_probabilities[scene][frame] = frame_collision_pairs
+
+    return collision_probabilities
+
 base_folder_path = '../results/nuscenes_5sample_agentformer/results/epoch_0035/test/recon'
 trajectory_data = load_trajectory_data(base_folder_path)
-collision_probabilities = calculate_collision_probabilities_with_nonlinear(trajectory_data)
-print(collision_probabilities)
+print("Starting collision probability calculation...")
+collision_probabilities = calculate_frame_collision_probabilities_with_nonlinear(trajectory_data)
+print("Calculations Done.")
+rows = []
+for scene, frames in collision_probabilities.items():
+    for frame, collisions in frames.items():
+        for pair, probability in collisions:
+            ego_id, target_id = pair
+            rows.append([scene, frame, ego_id, target_id, probability])
+
+df = pd.DataFrame(rows, columns=["Scene", "Frame", "Ego_ID", "Target_ID", "Collision_Probability"])
+df.to_csv("Framewise_ego_target_probability.csv",index=False)
+print("Exported the data file")
+
 # collision_summaries = calculate_and_summarize_collisions(trajectory_data)
 # for scene, summary in collision_summaries.items():
 #     print(f"In {scene}, {summary}")
