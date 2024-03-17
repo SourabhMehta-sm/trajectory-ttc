@@ -5,3 +5,5 @@ six
 pyyaml
 easydict
 nuscenes-devkit
+pandas
+numpy
